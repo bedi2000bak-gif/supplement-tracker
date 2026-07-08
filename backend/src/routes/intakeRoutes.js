@@ -6,13 +6,20 @@ const authMiddleware = require("../middleware/authMiddleware");
 const {
     createIntakeLog,
     getIntakeByDate,
-    deleteIntakeLog
+    deleteIntakeLog,
+    getIntakeByMonth
 } = require("../controllers/intakeController");
 
 router.post(
     "/",
     authMiddleware,
     createIntakeLog
+);
+
+router.get(
+    "/month/:month",
+    authMiddleware,
+    getIntakeByMonth
 );
 
 router.get(
@@ -25,6 +32,6 @@ router.delete(
     "/:id",
     authMiddleware,
     deleteIntakeLog
-); 
+);
 
 module.exports = router;

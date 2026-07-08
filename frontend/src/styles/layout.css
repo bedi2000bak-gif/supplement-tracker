@@ -1,0 +1,46 @@
+.dashboard {
+  background: var(--bg);
+  min-height: 100vh;
+  padding: var(--s-5) var(--s-4);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.dashboard-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+.calendar-card { grid-column: 1 / 2; }
+.intake-card { grid-column: 2 / 3; }
+.progress-card { grid-column: 1 / -1; }
+.form-card { grid-column: 2 / 3; }
+.list-card { grid-column: 1 / 2; }
+
+/* TITLE */
+.dashboard-title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.dashboard-subtitle {
+  color: var(--text-secondary);
+  margin-top: var(--s-1);
+}
+
+/* MOBILE */
+@media (max-width: 800px) {
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .calendar-card,
+  .intake-card,
+  .form-card,
+  .list-card {
+    grid-column: 1 / -1;
+  }
+}

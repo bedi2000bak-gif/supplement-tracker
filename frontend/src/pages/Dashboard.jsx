@@ -1,123 +1,184 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SupplementList from "../components/SupplementList";
 import SupplementForm from "../components/SupplementForm";
-import IntakeSummary from "../components/IntakeSummary";
+import CalendarView from "../components/Calendar";
+import ProgressCard from "../components/ProgressCard";
+import Intakes from "../components/Intakes";
 import api from "../api/axios";
-
-
-
-
+import { formatLocalDate } from "../utils/date";
 
 function Dashboard() {
-    const [supplements, setSupplements] = useState(null);
+    const [supplements, setSupplements] = useState([]);
+    const [selectedIntakes, setSelectedIntakes] = useState([]);
+    const [todayIntakes, setTodayIntakes] = useState([]);
+    const [monthlyIntakes, setMonthlyIntakes] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [error, setError] = useState(null);
-    const [intakes, setIntakes] = useState([])
+    const navigate = useNavigate();
 
-     function getIntakes() {
-        const token = localStorage.getItem("token")
-        const today = new Date().toISOString().split("T")[0]
+    function getIntakes() {
+        const today = formatLocalDate(new Date());
 
-         if (!token) {
-            console.error("No token fount in localStorage");
-            return;
-        }
-        return api.get(`/api/intake/${today}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
-            .then(response => {
-                setError(null)
-                console.log("Today's intakes:", response.data)
-                console.log(JSON.stringify(response.data, null, 2));
-                setIntakes(response.data)
+        api.get(`/api/intake/${today}`)
+            .then((response) => {
+                setError(null);
+                setTodayIntakes(response.data || []);
+
+                if (formatLocalDate(selectedDate) === today) {
+                    setSelectedIntakes(response.data || []);
+                }
             })
-            .catch(error => {
-                console.error("failed to get intake logs")
-                setError("Failed to load today's intakes")
-            })
+            .catch(() => {
+                setError("Failed to load today's intakes");
+            });
     }
 
     function loadSupplements() {
-        const token = localStorage.getItem("token")
-        if (!token) {
-            console.error("No token found in localStorage");
-            return;
-        }
-        return(
-         api.get("/api/supplements", {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then(response => {
-                setError(null)
-                setSupplements(response.data);
-                console.log("User data:", response.data);
+        api.get("/api/supplements")
+            .then((response) => {
+                setError(null);
+                setSupplements(response.data || []);
             })
-            .catch(error => {
-                console.error("Error fetching user data:", error);
-                setError("Failed to load supplements")
-            })
-        )
+            .catch(() => {
+                setError("Failed to load supplements");
+            });
     }
 
     function deleteSupplement(id) {
-        const token = localStorage.getItem("token")
+        api.delete(`/api/supplements/${id}`)
+            .then(() => {
+                loadSupplements();
+                getIntakes();
 
-        if (!token) {
-            console.error("No token fount in localStorage");
-            return;
-        }
-
-        return (
-            api.delete(`/api/supplements/${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                const month = formatLocalDate(selectedDate).slice(0, 7);
+                loadMonthlyIntakes(month);
             })
-                .then(response => {
-                    setError(null)
-                    return Promise.all([
-                        loadSupplements(),
-                        getIntakes()
-                    ])
-                })
-                .catch(error => {
-                    console.error("Error deleting supplement:", error);
-                    setError("Failed to delete supplement")
-                })
-        )
+            .catch(() => {
+                setError("Failed to delete supplement");
+            });
     }
 
+    function loadMonthlyIntakes(month) {
+        api.get(`/api/intake/month/${month}`)
+            .then((response) => {
+                setError(null);
+                setMonthlyIntakes(response.data || []);
+            })
+            .catch(() => {
+                setError("Failed to load monthly intakes");
+            });
+    }
 
+    function handleDateChange(date) {
+        setSelectedDate(date);
+
+        const formattedDate = formatLocalDate(date);
+        const month = formattedDate.slice(0, 7);
+
+        api.get(`/api/intake/${formattedDate}`)
+            .then((response) => {
+                setError(null);
+                setSelectedIntakes(response.data || []);
+            })
+            .catch(() => {
+                setError("Failed to load intakes for selected day");
+            });
+
+        loadMonthlyIntakes(month);
+    }
 
     useEffect(() => {
-       
-        loadSupplements()
-        getIntakes()
+        loadSupplements();
+        getIntakes();
+
+        const month = formatLocalDate(new Date()).slice(0, 7);
+        loadMonthlyIntakes(month);
     }, []);
 
+    const intakeCounts = {};
 
+    (monthlyIntakes || []).forEach((i) => {
+        intakeCounts[i.date] = (intakeCounts[i.date] || 0) + 1;
+    });
+
+    const taken = todayIntakes.length;
+    const total = supplements.length;
 
     return (
-        <>
-            <h1>Dashboard</h1>
-            {error && <p> X
-                {error}</p>}
-            <IntakeSummary
-                supplements={supplements}
-                intakes={intakes}
-            />
-            <SupplementForm
-                onAdded={loadSupplements} />
-            <SupplementList
-                supplements={supplements}
-                intakes={intakes}
-                onDelete={deleteSupplement}
-                onTaken= {getIntakes}
-            />
-        </>
+        <div className="dashboard">
+            <div className="dashboard-grid">
+
+                <div className="dashboard-header">
+                    <div>
+                    <h1 className="dashboard-title">
+                        Dashboard
+                    </h1>
+
+                    <p className="dashboard-subtitle">
+                        Track your supplements and build healthy habits.
+                    </p>
+                    </div>
+                    <button className="btn-logout" onClick={() => {
+                        localStorage.removeItem("token");
+                        navigate("/login");
+                    }}>
+                        Logout
+                    </button>
+                </div>
+
+                {error && (
+                    <p className="error-message">
+                        {error}
+                    </p>
+                )}
+
+                <ProgressCard
+                    taken={taken}
+                    total={total}
+                />
+
+                <CalendarView
+                    selectedDate={selectedDate}
+                    onDateChange={handleDateChange}
+                    onMonthChange={loadMonthlyIntakes}
+                    intakeCounts={intakeCounts}
+                    supplementCount={supplements.length}
+                />
+
+                <Intakes
+                    intakes={selectedIntakes}
+                    selectedDate={selectedDate}
+                />
+
+                <SupplementList
+                    supplements={supplements}
+                    intakes={todayIntakes}
+                    onDelete={deleteSupplement}
+                    onTaken={() => {
+                        getIntakes();
+
+                        const month = formatLocalDate(selectedDate)
+                            .slice(0, 7);
+
+                        loadMonthlyIntakes(month);
+                    }}
+                />
+
+                <SupplementForm
+                    onAdded={() => {
+                        loadSupplements();
+                        getIntakes();
+
+                        const month = formatLocalDate(selectedDate)
+                            .slice(0, 7);
+
+                        loadMonthlyIntakes(month);
+                    }}
+                />
+
+            </div>
+        </div>
     );
 }
 

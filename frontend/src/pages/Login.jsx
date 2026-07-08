@@ -1,6 +1,11 @@
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
+import { useState } from "react";
 
 function Login() {
+    const navigate = useNavigate();
+    const [error, setError] = useState(null);
+
     function handleSubmit(event) {
         event.preventDefault();
         const email = event.target.email.value;
@@ -8,26 +13,38 @@ function Login() {
 
         api.post("/api/auth/login", { email, password })
             .then(response => {
-                console.log("User logged in:", response.data);
-                // Store the token in localStorage
                 localStorage.setItem("token", response.data.token);
-                // Redirect to the dashboard or another page
-                window.location.href = "/dashboard";
+                setError(null);
+                navigate("/dashboard");
             })
             .catch(error => {
-                console.error("Error logging in user:", error);
+                if (error.response?.status === 401) {
+                    setError("Invalid email or password. Please try again.");
+                } else {
+                    setError("Failed to login. Please try again.");
+                }
             });
-        
-        
     }
     return (
-        <form onSubmit={handleSubmit}>
-            <input name="email" type="email" placeholder="Email" />
-            <input name="password" type="password" placeholder="Password" />
-            <button name="submit" type="submit">Login</button>      
-        </form>
+        <div className="auth-page">
+            <div className="card auth-card">
+                <h2>Login</h2>
+                <p className="auth-subtitle">Welcome back! Track your supplements.</p>
+
+                {error && <p className="error-message">{error}</p>}
+
+                <form onSubmit={handleSubmit}>
+                    <input name="email" type="email" className="form-input" placeholder="Email" />
+                    <input name="password" type="password" className="form-input" placeholder="Password" />
+                    <button name="submit" type="submit" className="btn-primary btn-full">Login</button>
+                </form>
+
+                <p className="auth-switch">
+                    No account yet? <Link to="/register">Register</Link>
+                </p>
+            </div>
+        </div>
     )
 }
 
 export default Login;
-    

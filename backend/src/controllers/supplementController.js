@@ -46,14 +46,12 @@ const deleteSupplement = async (req, res) => {
 
     try {
         await pool.query(
-            `DELETE FROM intake_logs
+            `
+            DELETE FROM intake_logs
             WHERE supplement_id = $1
-            AND user_id = $2`
-            
-            ,
-            [
-                id
-            ]
+            AND user_id = $2
+            `,
+            [id, req.user.userId]
         );
         await pool.query(
             `

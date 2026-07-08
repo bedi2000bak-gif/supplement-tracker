@@ -7,20 +7,9 @@ function SupplementForm({ onAdded }) {
 
         const name = event.target.name.value;
         const dosage = event.target.dosage.value;
-        const token = localStorage.getItem("token");
-        
-        api.post(
-            "/api/supplements",
-            { name, dosage },
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        )
-        .then(response => {
-            console.log("Supplement added:", response.data);
 
+        api.post("/api/supplements", { name, dosage })
+        .then(response => {
             event.target.reset();
 
             onAdded();
@@ -31,29 +20,33 @@ function SupplementForm({ onAdded }) {
     }
 
     return (
+        <div className="card form-card">
         <div>
+            <h2>Add Supplement</h2>
+
             <form onSubmit={handleSubmit}>
                 <input
                     name="name"
                     type="text"
-                    className="supplementForm"
+                    className="form-input"
                     placeholder="Type of supplement"
                 />
 
                 <input
                     name="dosage"
                     type="text"
-                    className="supplementForm"
+                    className="form-input"
                     placeholder="Dosage"
                 />
 
                 <button
                     type="submit"
-                    className="supplementFormButton"
+                    className="btn-primary btn-full"
                 >
-                    ADD
+                    Add Supplement
                 </button>
             </form>
+        </div>
         </div>
     );
 }
