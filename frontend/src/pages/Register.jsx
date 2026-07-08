@@ -21,6 +21,10 @@ function Register() {
 
         if (error.response?.status === 409) {
           setError("Email already exists. Please use a different email.");
+        }
+        else if(error.response?.status === 400) {
+          setError(error.response.data.error);
+    
         } else {
           setError("Failed to register. Please try again.");
         }

@@ -3,6 +3,9 @@ const pool = require("../config/db");
 const createSupplement = async (req, res) => {
     const { name, dosage } = req.body;
 
+    if (!name || !name.trim()) {
+        return res.status(400).json({ error: "Supplement name is required" });
+    }
     try {
         const result = await pool.query(
             `

@@ -4,6 +4,27 @@ const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   const { email, password } = req.body;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+
+  if (!email || !email.trim()) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  if (!password || !password.trim()) {
+    return res.status(400).json({ error: "Password is required" });
+  }
+
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+
+  if (!passwordRegex.test(password)) {
+    return res.status(400).json({
+      error:
+        "Password must be at least 8 characters long and contain at least one letter and one number",
+    });
+  }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
