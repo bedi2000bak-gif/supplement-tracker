@@ -26,9 +26,11 @@ function SupplementList({ supplements, intakes = [], onDelete, onTaken }) {
 
                 <ul>
                     {supplements.map(supplement => {
-                        const isTaken = intakes.some(intake =>
+                        const todayIntake = intakes.find(intake =>
                             intake.supplement_id === supplement.id
                         );
+                        const isTaken = todayIntake !== undefined;
+                        
 
                         return (
                             <li key={supplement.id} className="supplement-item">
@@ -43,6 +45,7 @@ function SupplementList({ supplements, intakes = [], onDelete, onTaken }) {
 
                                 <IntakeButton
                                     supplementId={supplement.id}
+                                    intakeId={todayIntake?.id}
                                     isTaken={isTaken}
                                     onTaken={onTaken}
                                 />

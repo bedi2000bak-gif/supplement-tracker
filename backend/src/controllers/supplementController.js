@@ -18,7 +18,7 @@ const createSupplement = async (req, res) => {
 
     catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Something went wrong" });
     }
 };
 
@@ -37,7 +37,7 @@ const getSupplements = async (req, res) => {
 
     catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Something went wrong" });
     }
 }
 
@@ -66,7 +66,7 @@ const deleteSupplement = async (req, res) => {
 
     catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: "Something went wrong" });
     }
 }
 

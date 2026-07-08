@@ -29,7 +29,7 @@ const createIntakeLog = async (req, res) => {
 
         console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Something went wrong"
         });
     }
 };
@@ -64,7 +64,7 @@ const getIntakeByDate = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Something went wrong"
         });
     }
 }
@@ -94,7 +94,7 @@ const deleteIntakeLog = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Something went wrong"
         });
     }
 }
@@ -131,7 +131,7 @@ const getIntakeByMonth = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({
-            error: err.message
+            error: "Something went wrong"
         });
     }
 }

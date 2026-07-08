@@ -9,6 +9,7 @@ import api from "../api/axios";
 import { formatLocalDate } from "../utils/date";
 
 function Dashboard() {
+    const [loading, setLoading] = useState(true);
     const [supplements, setSupplements] = useState([]);
     const [selectedIntakes, setSelectedIntakes] = useState([]);
     const [todayIntakes, setTodayIntakes] = useState([]);
@@ -42,6 +43,9 @@ function Dashboard() {
             })
             .catch(() => {
                 setError("Failed to load supplements");
+            })
+            .finally(() => {
+                setLoading(false);
             });
     }
 
@@ -104,6 +108,14 @@ function Dashboard() {
 
     const taken = todayIntakes.length;
     const total = supplements.length;
+
+    if (loading) {
+        return (
+            <div className="dashboard">
+                <p className="empty-text">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="dashboard">
