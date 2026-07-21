@@ -2,6 +2,8 @@
 
 A full-stack web app for tracking daily supplement intake. Log what you take, see your progress for the day at a glance, and review your consistency on a calendar — the greener the dot, the more complete the day.
 
+**🔗 [Live Demo](https://supplement-tracker-plum.vercel.app/)** — log in with `demo@example.com` / `demo1234`, or register your own account.
+
 ![Dashboard](docs/dashboard.png)
 
 ## Features
